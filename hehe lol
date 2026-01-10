@@ -1,0 +1,36 @@
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local Button = Instance.new("TextButton", ScreenGui)
+
+local targetPos = nil
+local objName = "Safe"
+local p = game.Players.LocalPlayer
+
+Button.Size = UDim2.new(0, 150, 0, 50)
+Button.Position = UDim2.new(0.5, -75, 0.1, 0)
+Button.Text = "SAVE POS"
+Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Button.MouseButton1Click:Connect(function()
+    if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+        targetPos = p.Character.HumanoidRootPart.Position
+        Button.Text = "DONE"
+        wait(1)
+        Button.Text = "SAVE POS"
+    end
+end)
+
+local function setup(o)
+    if o.Name == objName and o:IsA("BasePart") then
+        o.Touched:Connect(function(h)
+            if h.Parent == p.Character and targetPos then 
+                p.Character.HumanoidRootPart.CFrame = CFrame.new(targetPos) 
+            end
+        end)
+    end
+end
+
+for _, v in pairs(game.Workspace:GetDescendants()) do setup(v) end
+game.Workspace.DescendantAdded:Connect(setup)
+
+
