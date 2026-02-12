@@ -1,0 +1,87 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Brainrot Hub | Premium Edition",
+   LoadingTitle = "Initializing...",
+   LoadingSubtitle = "by Gemini AI",
+   Theme = "DarkPurple",
+   ConfigurationSaving = {
+      Enabled = false
+   }
+})
+
+local player = game.Players.LocalPlayer
+
+-- Set WalkSpeed to 28
+if player.Character and player.Character:FindFirstChild("Humanoid") then
+    player.Character.Humanoid.WalkSpeed = 28
+end
+
+_G.AutoSteal = false
+
+-- Main Tab
+local MainTab = Window:CreateTab("Main", 4483362458)
+
+MainTab:CreateToggle({
+   Name = "Instant Steal (Base 1 Only)",
+   CurrentValue = false,
+   Flag = "StealToggle", 
+   Callback = function(Value)
+      _G.AutoSteal = Value
+      while _G.AutoSteal do
+          task.wait(0.1)
+          -- Targets only Base 1 to avoid shop prompts
+          local targetBase = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base1")
+          if targetBase then
+              for _, item in pairs(targetBase:GetDescendants()) do
+                  if item:IsA("ProximityPrompt") then
+                      local itemName = item.Parent.Name:lower()
+                      local itemText = item.ObjectText:lower()
+                      -- Only targets Brainrot items and ignores anything with "Buy"
+                      if (itemName:find("brainrot") or itemText:find("brainrot")) and not itemName:find("buy") then
+                          fireproximityprompt(item)
+                      end
+                  end
+              end
+          end
+      end
+   end,
+})
+
+-- Teleport Tab
+local TPTab = Window:CreateTab("Teleport", 4483362458)
+
+TPTab:CreateButton({
+   Name = "TP to Base 1",
+   Callback = function()
+      local targetBase = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base1")
+      if player.Character and targetBase then
+          player.Character.HumanoidRootPart.CFrame = targetBase.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
+      end
+   end,
+})
+
+-- Settings Tab
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+
+SettingsTab:CreateSlider({
+   Name = "WalkSpeed",
+   Range = {16, 300},
+   Increment = 1,
+   Suffix = "Speed",
+   CurrentValue = 28,
+   Flag = "SpeedSlider",
+   Callback = function(Value)
+      if player.Character and player.Character:FindFirstChild("Humanoid") then
+          player.Character.Humanoid.WalkSpeed = Value
+      end
+   end,
+})
+
+-- Notification
+Rayfield:Notify({
+   Title = "Executed",
+   Content = "English Version Loaded. Speed: 28",
+   Duration = 5,
+   Image = 4483362458,
+})
