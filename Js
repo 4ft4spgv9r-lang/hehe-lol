@@ -1,0 +1,86 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Brainrot Collector | Multi-Base",
+   LoadingTitle = "Scanning Bases...",
+   LoadingSubtitle = "by Gemini AI",
+   Theme = "DarkPurple", -- Purple Theme
+   ConfigurationSaving = { Enabled = false }
+})
+
+local player = game.Players.LocalPlayer
+-- Set WalkSpeed to 28
+if player.Character and player.Character:FindFirstChild("Humanoid") then
+    player.Character.Humanoid.WalkSpeed = 28
+end
+
+_G.AutoSteal = false
+
+local MainTab = Window:CreateTab("Main Hacks", 4483362458)
+
+MainTab:CreateToggle({
+   Name = "Auto-Steal (Base 1 & 2)",
+   CurrentValue = false,
+   Flag = "StealToggle", 
+   Callback = function(Value)
+      _G.AutoSteal = Value
+      while _G.AutoSteal do
+          task.wait(0.1)
+          
+          -- Search in both Base 1 and Base 2
+          local targetBases = {
+              workspace:FindFirstChild("Base 1"),
+              workspace:FindFirstChild("Base1"),
+              workspace:FindFirstChild("Base 2"),
+              workspace:FindFirstChild("Base2")
+          }
+          
+          for _, base in pairs(targetBases) do
+              if base then
+                  for _, item in pairs(base:GetDescendants()) do
+                      if item:IsA("ProximityPrompt") then
+                          local pName = item.Parent.Name:lower()
+                          local pText = item.ObjectText:lower()
+                          
+                          -- Strict Filter: Only Brainrot, NO SHOP/BUY
+                          local isForbidden = pName:find("shop") or pName:find("store") or pName:find("buy") or pText:find("buy")
+                          
+                          if (pName:find("brainrot") or pText:find("brainrot")) and not isForbidden then
+                              fireproximityprompt(item)
+                          end
+                      end
+                  end
+              end
+          end
+      end
+   end,
+})
+
+local TPTab = Window:CreateTab("Teleport", 4483362458)
+
+TPTab:CreateButton({
+   Name = "Teleport to Base 1",
+   Callback = function()
+      local target = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base1")
+      if player.Character and target then
+          player.Character.HumanoidRootPart.CFrame = target.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
+      end
+   end,
+})
+
+TPTab:CreateButton({
+   Name = "Teleport to Base 2",
+   Callback = function()
+      local target = workspace:FindFirstChild("Base 2") or workspace:FindFirstChild("Base2")
+      if player.Character and target then
+          player.Character.HumanoidRootPart.CFrame = target.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
+      end
+   end,
+})
+
+Rayfield:Notify({
+   Title = "System Loaded",
+   Content = "Targets: Base 1 & 2 | Speed: 28",
+   Duration = 5,
+   Image = 4483362458,
+})
