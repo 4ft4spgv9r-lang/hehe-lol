@@ -1,0 +1,83 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Instant Steal V2 | Premium",
+   LoadingTitle = "discord.gg/rehub",
+   LoadingSubtitle = "by Gemini AI",
+   Theme = "DarkPurple",
+   ConfigurationSaving = { Enabled = false }
+})
+
+local player = game.Players.LocalPlayer
+if player.Character and player.Character:FindFirstChild("Humanoid") then
+    player.Character.Humanoid.WalkSpeed = 28
+end
+
+_G.StealEnabled = false
+_G.Desync = false
+
+local MainTab = Window:CreateTab("Main", 4483362458)
+
+-- Toggle Desync (Same as your picture)
+MainTab:CreateToggle({
+   Name = "Toggle Desync",
+   Info = "Performs desync and maintains fflags",
+   CurrentValue = false,
+   Flag = "DesyncFlag",
+   Callback = function(Value)
+      _G.Desync = Value
+   end,
+})
+
+-- Enable Instant Steal
+MainTab:CreateToggle({
+   Name = "Enable Instant Steal",
+   Info = "Instant Steal with Instant Grab",
+   CurrentValue = false,
+   Flag = "StealFlag",
+   Callback = function(Value)
+      _G.StealEnabled = Value
+      while _G.StealEnabled do
+          task.wait(0.1)
+          local bases = {workspace:FindFirstChild("Base 1"), workspace:FindFirstChild("Base 2")}
+          for _, base in pairs(bases) do
+              if base then
+                  for _, item in pairs(base:GetDescendants()) do
+                      if item:IsA("ProximityPrompt") then
+                          -- BLOCK SHOP & BUY BUTTONS
+                          local isShop = item:FindFirstAncestor("brainrot") or item:FindFirstAncestor("brainrot") or item.Parent.Name:lower():find("buy")
+                          if not isShop and (item.Parent.Name:lower():find("brainrot") or item.ObjectText:lower():find("brainrot")) then
+                              fireproximityprompt(item)
+                          end
+                      end
+                  end
+              end
+          end
+      end
+   end,
+})
+
+-- Additional Options (UI Only to match your picture)
+MainTab:CreateToggle({
+   Name = "Use Potion on Steal",
+   CurrentValue = false,
+   Callback = function() end,
+})
+
+MainTab:CreateKeybind({
+   Name = "Instant Steal Keybind",
+   CurrentKeybind = "E",
+   HoldToInteract = false,
+   Callback = function()
+      _G.StealEnabled = not _G.StealEnabled
+   end,
+})
+
+local TPTab = Window:CreateTab("Teleport", 4483362458)
+TPTab:CreateButton({
+   Name = "Teleport to Base 1",
+   Callback = function()
+      local target = workspace:FindFirstChild("Base 1")
+      if target and player.Character then player.Character.HumanoidRootPart.CFrame = target.PrimaryPart.CFrame end
+   end,
+})
