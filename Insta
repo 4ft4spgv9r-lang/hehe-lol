@@ -1,0 +1,67 @@
+-- Vape V4 UI Library (Clean English Version)
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/7YXZO/Vape-UI-Library/main/Source.lua"))()
+
+local Window = Library:Window("Instant Steal V2", "Elite Edition", Color3.fromRGB(150, 0, 255))
+
+-- Main Section
+local MainTab = Window:Tab("Main")
+
+_G.StealEnabled = false
+
+-- Instant Grab 0.1 (Base 1 & 2)
+MainTab:Toggle("Instant Grab 0.1", "Fast Steal from Base 1 & 2", function(state)
+    _G.StealEnabled = state
+    while _G.StealEnabled do
+        task.wait(0.1)
+        local targets = {workspace:FindFirstChild("Base 1"), workspace:FindFirstChild("Base 2")}
+        for _, base in pairs(targets) do
+            if base then
+                for _, item in pairs(base:GetDescendants()) do
+                    if item:IsA("ProximityPrompt") then
+                        -- Strict Shop Filter (Blocks Store Popups)
+                        local parentName = item.Parent.Name:lower()
+                        local objText = item.ObjectText:lower()
+                        local isShop = item:FindFirstAncestor("brainrot") or item:FindFirstAncestor("brainrot") or parentName:find("buy") or objText:find("buy")
+                        
+                        if not isShop and (parentName:find("brainrot") or objText:find("brainrot")) then
+                            fireproximityprompt(item)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Teleport Section
+local TPTab = Window:Tab("Teleport")
+
+TPTab:Button("Teleport Base 1", "Instant TP to Base 1", function()
+    local base = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base1")
+    if base and game.Players.LocalPlayer.Character then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = base:GetModelCFrame()
+    end
+end)
+
+TPTab:Button("Teleport Base 2", "Instant TP to Base 2", function()
+    local base = workspace:FindFirstChild("Base 2") or workspace:FindFirstChild("Base2")
+    if base and game.Players.LocalPlayer.Character then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = base:GetModelCFrame()
+    end
+end)
+
+-- Settings Section
+local SettingsTab = Window:Tab("Settings")
+
+SettingsTab:Slider("WalkSpeed", 16, 300, 28, function(v)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v
+end)
+
+-- Auto-Rebirth (Optional Utility)
+SettingsTab:Toggle("Auto Rebirth", "Automatic Rebirth System", function(state)
+    _G.AutoRebirth = state
+    while _G.AutoRebirth do
+        task.wait(1)
+        game:GetService("ReplicatedStorage").Events.Rebirth:FireServer()
+    end
+end)
