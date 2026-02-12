@@ -1,0 +1,59 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wall%20v3"))()
+
+local Window = Library:CreateWindow("Instant Steal V2")
+
+local Main = Window:CreateTab("Main Settings")
+
+_G.StealEnabled = false
+
+-- Option 1: Toggle Desync
+Main:CreateToggle("Toggle Desync", function(state)
+    _G.Desync = state
+end)
+
+-- Option 2: Enable Instant Grab 0.1
+Main:CreateToggle("Enable Instant Grab", function(state)
+    _G.StealEnabled = state
+    while _G.StealEnabled do
+        task.wait(0.1) -- Fast speed 0.1
+        
+        -- Target Base 1 and Base 2
+        local bases = {workspace:FindFirstChild("Base 1"), workspace:FindFirstChild("Base 2")}
+        
+        for _, base in pairs(bases) do
+            if base then
+                for _, item in pairs(base:GetDescendants()) do
+                    if item:IsA("ProximityPrompt") then
+                        local pName = item.Parent.Name:lower()
+                        local pText = item.ObjectText:lower()
+                        
+                        -- SHOP FILTER: Ignore anything related to buying
+                        local isShop = item:FindFirstAncestor("brainrot") or item:FindFirstAncestor("brainrot") or pName:find("buy") or pText:find("buy")
+                        
+                        if not isShop and (pName:find("brainrot") or pText:find("brainrot")) then
+                            fireproximityprompt(item)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Option 3: Keybind
+Main:CreateBox("Keybind (E)", function(text)
+    -- This matches the look in your photo
+end)
+
+-- Player Settings
+local PlayerTab = Window:CreateTab("Player")
+PlayerTab:CreateSlider("WalkSpeed", 16, 300, function(value)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+end)
+
+-- Quick Teleport
+local TPTab = Window:CreateTab("Teleport")
+TPTab:CreateButton("TP to Base 1", function()
+    local target = workspace:FindFirstChild("Base 1")
+    if target then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.PrimaryPart.CFrame end
+end)
