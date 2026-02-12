@@ -1,0 +1,144 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+-- Create Window (Rehub Style: Dark & Red)
+local Window = OrionLib:MakeWindow({
+    Name = "Instant Steal V2 | Elite",
+    HidePremium = false,
+    SaveConfig = false,
+    ConfigFolder = "OrionElite",
+    IntroEnabled = true,
+    IntroText = "Instant Steal V2"
+})
+
+-- Main Tab
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+_G.StealEnabled = false
+
+-- 1. Toggle Desync (Visual/Placebo)
+MainTab:AddToggle({
+    Name = "Toggle Desync",
+    Default = false,
+    Callback = function(Value)
+        _G.DesyncEnabled = Value
+    end    
+})
+
+-- 2. Enable Instant Steal (Instant Grab 0.1)
+MainTab:AddToggle({
+    Name = "Enable Instant Steal",
+    Default = false,
+    Callback = function(Value)
+        _G.StealEnabled = Value
+        task.spawn(function()
+            while _G.StealEnabled do
+                task.wait(0.1) -- Fast Speed 0.1s
+                pcall(function()
+                    -- Target Base 1 and Base 2
+                    local bases = {workspace:FindFirstChild("Base 1"), workspace:FindFirstChild("Base 2")}
+                    for _, base in pairs(bases) do
+                        if base then
+                            for _, item in pairs(base:GetDescendants()) do
+                                if item:IsA("ProximityPrompt") then
+                                    local pName = item.Parent.Name:lower()
+                                    local pText = item.ObjectText:lower()
+                                    
+                                    -- SHOP FILTER: Strictly ignore Buy buttons
+                                    local isShop = item:FindFirstAncestor("Shop") or item:FindFirstAncestor("Store") or pName:find("buy") or pText:find("buy")
+                                    
+                                    if not isShop and (pName:find("brainrot") or pText:find("brainrot")) then
+                                        fireproximityprompt(item)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end    
+})
+
+-- 3. Instant Steal Keybind (E)
+MainTab:AddBind({
+    Name = "Instant Steal Keybind",
+    Default = Enum.KeyCode.E,
+    Hold = false,
+    Callback = function()
+        _G.StealEnabled = not _G.StealEnabled
+        OrionLib:MakeNotification({
+            Name = "System",
+            Content = "Instant Steal: " .. tostring(_G.StealEnabled),
+            Time = 2
+        })
+    end    
+})
+
+-- Teleport Tab
+local TPTab = Window:MakeTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+TPTab:AddButton({
+    Name = "Teleport Base 1",
+    Callback = function()
+        pcall(function()
+            local base = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base1")
+            if base and game.Players.LocalPlayer.Character then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = base:GetModelCFrame() + Vector3.new(0, 5, 0)
+            end
+        end)
+    end    
+})
+
+TPTab:AddButton({
+    Name = "Teleport Base 2",
+    Callback = function()
+        pcall(function()
+            local base = workspace:FindFirstChild("Base 2") or workspace:FindFirstChild("Base2")
+            if base and game.Players.LocalPlayer.Character then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = base:GetModelCFrame() + Vector3.new(0, 5, 0)
+            end
+        end)
+    end    
+})
+
+-- Settings Tab
+local SettingsTab = Window:MakeTab({
+    Name = "Settings",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+SettingsTab:AddSlider({
+    Name = "WalkSpeed",
+    Min = 16,
+    Max = 300,
+    Default = 28,
+    Color = Color3.fromRGB(255,0,0),
+    Increment = 1,
+    ValueName = "Speed",
+    Callback = function(Value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end    
+})
+
+SettingsTab:AddToggle({
+    Name = "Auto Rebirth",
+    Default = false,
+    Callback = function(Value)
+        _G.AutoRebirth = Value
+        while _G.AutoRebirth do
+            task.wait(1)
+            game:GetService("ReplicatedStorage").Events.Rebirth:FireServer()
+        end
+    end    
+})
+
+OrionLib:Init()
