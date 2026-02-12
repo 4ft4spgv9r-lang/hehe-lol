@@ -1,0 +1,68 @@
+-- Kavo UI Library (Same V2 look as requested)
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("Instant Steal V2 | Premium", "VapeV4")
+
+-- Main Tab
+local Main = Window:NewTab("Main")
+local MainSection = Main:NewSection("Stealing Options")
+
+_G.StealEnabled = false
+_G.GrabSpeed = 0.1 -- Instant Grab Speed
+
+-- Toggle Desync
+MainSection:NewToggle("Toggle Desync", "Performs desync and maintains fflags", function(state)
+    _G.Desync = state
+end)
+
+-- Enable Instant Steal & Instant Grab
+MainSection:NewToggle("Enable Instant Grab", "Steals from Base 1 & 2 at 0.1s speed", function(state)
+    _G.StealEnabled = state
+    while _G.StealEnabled do
+        task.wait(_G.GrabSpeed) -- 0.1 second delay
+        
+        -- Scanning both Base 1 and Base 2
+        local bases = {workspace:FindFirstChild("Base 1"), workspace:FindFirstChild("Base 2")}
+        
+        for _, base in pairs(bases) do
+            if base then
+                for _, item in pairs(base:GetDescendants()) do
+                    if item:IsA("ProximityPrompt") then
+                        -- NO SHOP / NO BUY FILTER
+                        local parentName = item.Parent.Name:lower()
+                        local objectText = item.ObjectText:lower()
+                        
+                        local isShop = item:FindFirstAncestor("") or item:FindFirstAncestor("") or parentName:find("buy") or objectText:find("buy")
+                        
+                        if not isShop and (parentName:find("brainrot") or objectText:find("brainrot")) then
+                            fireproximityprompt(item)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- Keybind to Toggle
+MainSection:NewKeybind("Instant Steal Keybind", "Toggle with Key", Enum.KeyCode.E, function()
+    _G.StealEnabled = not _G.StealEnabled
+end)
+
+-- WalkSpeed Settings
+local Settings = Window:NewTab("Settings")
+local SettingsSection = Settings:NewSection("Player Customization")
+
+SettingsSection:NewSlider("WalkSpeed", "Default is 28", 300, 16, function(s)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
+end)
+
+-- Teleport Tab
+local TP = Window:NewTab("Teleport")
+local TPSection = TP.NewSection("Quick TP")
+
+TPSection:NewButton("TP to Base 1", "Fast Teleport", function()
+    local target = workspace:FindFirstChild("Base 1")
+    if target and game.Players.LocalPlayer.Character then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = target.PrimaryPart.CFrame
+    end
+end)
