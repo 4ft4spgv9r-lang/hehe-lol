@@ -1,0 +1,64 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "Brainrot Stealer | Final Fix",
+   LoadingTitle = "Filtering Target...",
+   LoadingSubtitle = "by Gemini AI",
+   Theme = "DarkPurple",
+   ConfigurationSaving = { Enabled = false }
+})
+
+local player = game.Players.LocalPlayer
+if player.Character and player.Character:FindFirstChild("Humanoid") then
+    player.Character.Humanoid.WalkSpeed = 28
+end
+
+_G.AutoSteal = false
+
+local MainTab = Window:CreateTab("Main", 4483362458)
+
+MainTab:CreateToggle({
+   Name = "Safe Brainrot Steal",
+   CurrentValue = false,
+   Flag = "StealToggle", 
+   Callback = function(Value)
+      _G.AutoSteal = Value
+      while _G.AutoSteal do
+          task.wait(0.1)
+        
+          local targetBase = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base1")
+          if targetBase then
+              for _, item in pairs(targetBase:GetDescendants()) do
+                  if item:IsA("brainrot") then
+                      local parentName = item.Parent.Name:lower()
+                      local promptText = item.ObjectText:lower()
+                      
+                      local brainrot = item:FindFirstAncestor("brainrot") or item:FindFirstAncestor("brainrot") or parentName:find("steal")
+                      
+                      if (parentName:find("brainrot") or promptText:find("brainrot")) and not isShop then
+                          fireproximityprompt(item)
+                      end
+                  end
+              end
+          end
+      end
+   end,
+})
+
+local TPTab = Window:CreateTab("Teleport", 4483362458)
+TPTab:CreateButton({
+   Name = "TP to Base 1",
+   Callback = function()
+      local targetBase = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base1")
+      if player.Character and targetBase then
+          player.Character.HumanoidRootPart.CFrame = targetBase.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
+      end
+   end,
+})
+
+Rayfield:Notify({
+   Title = "Fix Applied",
+   Content = "Shop filter is now ACTIVE. No more popups!",
+   Duration = 5,
+   Image = 4483362458,
+})
