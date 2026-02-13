@@ -1,0 +1,101 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+-- Creating Window (Elite Rehub Style)
+local Window = OrionLib:MakeWindow({
+    Name = "Instant Steal V2 | Elite Coordinates",
+    HidePremium = false,
+    SaveConfig = false,
+    ConfigFolder = "EliteSteal",
+    IntroEnabled = true,
+    IntroText = "Ready to Steal"
+})
+
+-- Main Tab
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+_G.StealEnabled = false
+
+-- 1. Enable Feature (With High Accuracy Coordinates)
+MainTab:AddToggle({
+    Name = "Enable Instant Steal",
+    Default = false,
+    Callback = function(Value)
+        _G.StealEnabled = Value
+        task.spawn(function()
+            while _G.StealEnabled do
+                task.wait(0.05) -- Extra Fast Speed for Accuracy
+                pcall(function()
+                    -- Coordinates Logic for Base 1 and Base 2
+                    local targets = {workspace:FindFirstChild("Base 1"), workspace:FindFirstChild("Base 2")}
+                    for _, base in pairs(targets) do
+                        if base then
+                            -- This script locks onto specific child models (Green Pads)
+                            for _, item in pairs(base:GetDescendants()) do
+                                if item:IsA("ProximityPrompt") then
+                                    -- Shop Filter (Safe Steal)
+                                    local pName = item.Parent.Name:lower()
+                                    local isShop = item:FindFirstAncestor("Shop") or pName:find("buy")
+                                    
+                                    -- Only Steal if it's the target resource
+                                    if not isShop and (pName:find("brainrot") or item.ObjectText:lower():find("brainrot")) then
+                                        fireproximityprompt(item)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end    
+})
+
+-- 2. Teleport Tab (Accurate Coordinates)
+local TPTab = Window:MakeTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+TPTab:AddButton({
+    Name = "Teleport to Base 1 (Safe Zone)",
+    Callback = function()
+        local b1 = workspace:FindFirstChild("Base 1")
+        if b1 and game.Players.LocalPlayer.Character then
+            -- Moves player to the center of the harvesting zone
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = b1:GetModelCFrame()
+        end
+    end    
+})
+
+TPTab:AddButton({
+    Name = "Teleport to Base 2 (Safe Zone)",
+    Callback = function()
+        local b2 = workspace:FindFirstChild("Base 2")
+        if b2 and game.Players.LocalPlayer.Character then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = b2:GetModelCFrame()
+        end
+    end    
+})
+
+-- Settings Tab
+local SettingsTab = Window:MakeTab({
+    Name = "Settings",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+SettingsTab:AddSlider({
+    Name = "WalkSpeed",
+    Min = 16,
+    Max = 300,
+    Default = 28,
+    Color = Color3.fromRGB(255,0,0),
+    Callback = function(v) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = v end    
+})
+
+OrionLib:Init()
