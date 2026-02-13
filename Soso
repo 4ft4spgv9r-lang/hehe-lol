@@ -1,0 +1,94 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "Instant Steal V2 | Elite",
+    HidePremium = false,
+    SaveConfig = false,
+    ConfigFolder = "EliteSteal",
+    IntroEnabled = true,
+    IntroText = "Auto TP + Carpet Ready"
+})
+
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+_G.StealEnabled = false
+
+-- Function to create the Carpet (Platform)
+local function CreateCarpet()
+    local p = Instance.new("Part", workspace)
+    p.Size = Vector3.new(15, 1, 15)
+    p.Name = "SafetyCarpet"
+    p.Anchored = true
+    p.Transparency = 0.5
+    p.Color = Color3.fromRGB(255, 0, 0)
+    p.CanCollide = true
+    return p
+end
+
+MainTab:AddToggle({
+    Name = "Enable Instant Steal",
+    Default = false,
+    Callback = function(Value)
+        _G.StealEnabled = Value
+        if Value then
+            local carpet = CreateCarpet()
+            task.spawn(function()
+                while _G.StealEnabled do
+                    task.wait(0.1)
+                    pcall(function()
+                        local char = game.Players.LocalPlayer.Character
+                        local hrp = char:WaitForChild("HumanoidRootPart")
+                        
+                        -- Auto TP to Base 1 center if enabled
+                        local base1 = workspace:FindFirstChild("Base 1")
+                        if base1 then
+                            hrp.CFrame = base1:GetModelCFrame() * CFrame.new(0, 3, 0)
+                            carpet.CFrame = hrp.CFrame * CFrame.new(0, -3.5, 0)
+                        end
+
+                        -- Instant Grab 0.1 Logic
+                        for _, item in pairs(base1:GetDescendants()) do
+                            if item:IsA("ProximityPrompt") then
+                                local pName = item.Parent.Name:lower()
+                                local isShop = item:FindFirstAncestor("Shop") or pName:find("buy")
+                                if not isShop and (pName:find("brainrot") or item.ObjectText:lower():find("brainrot")) then
+                                    fireproximityprompt(item)
+                                end
+                            end
+                        end
+                    end)
+                end
+                carpet:Destroy()
+            end)
+        end
+    end    
+})
+
+-- Teleport Tab
+local TPTab = Window:MakeTab({
+    Name = "Teleport",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+TPTab:AddButton({
+    Name = "Teleport Base 1",
+    Callback = function()
+        local b1 = workspace:FindFirstChild("Base 1")
+        if b1 then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = b1:GetModelCFrame() end
+    end    
+})
+
+TPTab:AddButton({
+    Name = "Teleport Base 2",
+    Callback = function()
+        local b2 = workspace:FindFirstChild("Base 2")
+        if b2 then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = b2:GetModelCFrame() end
+    end    
+})
+
+OrionLib:Init()
