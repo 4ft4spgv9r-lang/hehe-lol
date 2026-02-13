@@ -1,0 +1,71 @@
+-- Elite UI Design (No External Links)
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local Toggle = Instance.new("TextButton")
+local TP = Instance.new("TextButton")
+
+ScreenGui.Parent = game.CoreGui
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.Position = UDim2.new(0.3, 0, 0.3, 0)
+Frame.Size = UDim2.new(0, 200, 0, 250)
+Frame.Active = true
+Frame.Draggable = true
+
+Title.Parent = Frame
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+Title.Text = "INSTANT STEAL V2"
+Title.TextColor3 = Color3.new(1, 1, 1)
+
+_G.Active = false
+
+-- Create Safety Carpet
+local function CreateCarpet()
+    local c = Instance.new("Part", workspace)
+    c.Size = Vector3.new(15, 1, 15)
+    c.Anchored = true
+    c.Transparency = 0.5
+    c.Color = Color3.fromRGB(180, 0, 0)
+    return c
+end
+
+Toggle.Parent = Frame
+Toggle.Position = UDim2.new(0.1, 0, 0.3, 0)
+Toggle.Size = UDim2.new(0.8, 0, 0, 45)
+Toggle.Text = "Enable Steal"
+Toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Toggle.TextColor3 = Color3.new(1, 1, 1)
+
+Toggle.MouseButton1Click:Connect(function()
+    _G.Active = not _G.Active
+    Toggle.Text = _G.Active and "Steal: ON" or "Steal: OFF"
+    Toggle.BackgroundColor3 = _G.Active and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(40, 40, 40)
+    
+    if _G.Active then
+        local cp = CreateCarpet()
+        task.spawn(function()
+            while _G.Active do
+                task.wait(0.1)
+                pcall(function()
+                    local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+                    local target = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base 2")
+                    if target then
+                        hrp.CFrame = target:GetModelCFrame() * CFrame.new(0, 2, 0)
+                        cp.CFrame = hrp.CFrame * CFrame.new(0, -3.5, 0)
+                        for _, item in pairs(target:GetDescendants()) do
+                            if item:IsA("ProximityPrompt") then
+                                local name = item.Parent.Name:lower()
+                                if not name:find("buy") and (name:find("brainrot") or item.ObjectText:lower():find("brainrot")) then
+                                    fireproximityprompt(item)
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+            cp:Destroy()
+        end)
+    end
+end)
