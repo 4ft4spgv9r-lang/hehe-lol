@@ -1,0 +1,76 @@
+-- Instant Steal V2 Script
+
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local ProximityPrompts = {}
+local ToggleEnabled = false
+
+-- UI Library Initialization
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source.lua"))()
+local Window = OrionLib:MakeWindow({Name = "Instant Steal V2", HidePremium = true})
+
+-- Main Automation Module
+local function CreateCarpet()
+    local Carpet = Instance.new("Part")
+    Carpet.Size = Vector3.new(10, 1, 10)
+    Carpet.Anchored = true
+    Carpet.CanCollide = false
+    Carpet.BrickColor = BrickColor.new("Crimson")
+    Carpet.Parent = Workspace
+    return Carpet
+end
+
+local function ToggleAutomation()
+    ToggleEnabled = not ToggleEnabled
+    if ToggleEnabled then
+        local Carpet = CreateCarpet()
+        while ToggleEnabled do
+            wait(0.1)
+            if Character and Character:FindFirstChild("HumanoidRootPart") then
+                local Position = Character.HumanoidRootPart.Position
+                Carpet.Position = Position - Vector3.new(0, 3, 0)
+                
+                for _, model in pairs(Workspace:GetChildren()) do
+                    if model.Name == "Base 1" or model.Name == "Base 2" then
+                        for _, prompt in pairs(model:GetDescendants()) do
+                            if prompt:IsA("ProximityPrompt") and not string.match(prompt.Name, "Shop|Store|Buy") then
+                                pcall(function() prompt:Fire() end)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Teleportation Module
+local function TeleportToBase(baseName)
+    local base = Workspace:FindFirstChild(baseName)
+    if base and Character:FindFirstChild("HumanoidRootPart") then
+        Character.HumanoidRootPart.CFrame = base.CFrame
+    end
+end
+
+-- UI Elements
+Window:Button("Teleport to Base 1", function() TeleportToBase("Base 1") end)
+Window:Button("Teleport to Base 2", function() TeleportToBase("Base 2") end)
+Window:Toggle("Enable Automation", false, function(State) 
+    if State then
+        ToggleAutomation()
+    else
+        ToggleEnabled = false
+    end
+end)
+
+-- Keybind for Automation Toggle
+UserInputService.InputBegan:Connect(function(Input, Processed)
+    if not Processed and Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Enum.KeyCode.E then
+        ToggleAutomation()
+    end
+end)
+
+OrionLib:Init()
