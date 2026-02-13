@@ -1,0 +1,96 @@
+-- Rehub Style UI (No External Links Needed)
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local EnableBtn = Instance.new("TextButton")
+local TPBtn = Instance.new("TextButton")
+
+-- UI Styling (Elite Dark & Red)
+ScreenGui.Parent = game.CoreGui
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.fromRGB(220, 0, 0)
+MainFrame.Position = UDim2.new(0.3, 0, 0.3, 0)
+MainFrame.Size = UDim2.new(0, 220, 0, 260)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.BackgroundColor3 = Color3.fromRGB(220, 0, 0)
+Title.Text = "INSTANT STEAL V2"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextSize = 18
+
+_G.StealActive = false
+
+-- Function to create the Carpet (Safety Platform)
+local function CreateCarpet()
+    local c = Instance.new("Part", workspace)
+    c.Size = Vector3.new(12, 1, 12)
+    c.Anchored = true
+    c.Transparency = 0.5
+    c.Color = Color3.fromRGB(220, 0, 0)
+    c.CanCollide = true
+    return c
+end
+
+-- 1. Enable Button (Auto TP + Carpet + Instant Grab)
+EnableBtn.Parent = MainFrame
+EnableBtn.Position = UDim2.new(0.1, 0, 0.25, 0)
+EnableBtn.Size = UDim2.new(0.8, 0, 0, 50)
+EnableBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+EnableBtn.Text = "Enable Steal"
+EnableBtn.TextColor3 = Color3.new(1, 1, 1)
+
+EnableBtn.MouseButton1Click:Connect(function()
+    _G.StealActive = not _G.StealActive
+    EnableBtn.Text = _G.StealActive and "Stealing: ON" or "Stealing: OFF"
+    EnableBtn.BackgroundColor3 = _G.Active and Color3.fromRGB(0, 180, 0) or Color3.fromRGB(40, 40, 40)
+    
+    if _G.StealActive then
+        local carpet = CreateCarpet()
+        task.spawn(function()
+            while _G.StealActive do
+                task.wait(0.1)
+                pcall(function()
+                    local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+                    -- Target specific base coordinates (Precise Move)
+                    local base = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base 2")
+                    
+                    if base then
+                        -- TP Player + Move Carpet
+                        hrp.CFrame = base:GetModelCFrame() * CFrame.new(0, 2, 0)
+                        carpet.CFrame = hrp.CFrame * CFrame.new(0, -3.2, 0)
+                        
+                        -- Instant Grab 0.1 Speed (As seen in your video)
+                        for _, item in pairs(base:GetDescendants()) do
+                            if item:IsA("ProximityPrompt") then
+                                local pName = item.Parent.Name:lower()
+                                -- Shop Filter (Ignores Buy buttons)
+                                if not pName:find("buy") and (pName:find("brainrot") or item.ObjectText:lower():find("brainrot")) then
+                                    fireproximityprompt(item)
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+            carpet:Destroy()
+        end)
+    end
+end)
+
+-- 2. Manual TP Button
+TPBtn.Parent = MainFrame
+TPBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
+TPBtn.Size = UDim2.new(0.8, 0, 0, 50)
+TPBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+TPBtn.Text = "Teleport Base"
+TPBtn.TextColor3 = Color3.new(1, 1, 1)
+
+TPBtn.MouseButton1Click:Connect(function()
+    local b1 = workspace:FindFirstChild("Base 1")
+    if b1 then game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = b1:GetModelCFrame() end
+end)
