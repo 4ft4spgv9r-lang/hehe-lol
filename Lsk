@@ -1,0 +1,83 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({
+    Name = "Instant Steal V2 | Semi-TP",
+    HidePremium = false,
+    SaveConfig = false,
+    ConfigFolder = "SemiTP",
+    IntroEnabled = true,
+    IntroText = "Semi-Instant TP Loading..."
+})
+
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
+
+_G.SemiSteal = false
+
+-- Function for the Safety Carpet (Red Platform)
+local function CreateSafetyPlatform()
+    local p = Instance.new("Part", workspace)
+    p.Size = Vector3.new(12, 1, 12)
+    p.Name = "SafetyCarpet"
+    p.Anchored = true
+    p.Transparency = 0.5
+    p.Color = Color3.fromRGB(200, 0, 0)
+    p.CanCollide = true
+    return p
+end
+
+MainTab:AddToggle({
+    Name = "Enable Semi-Instant TP",
+    Default = false,
+    Callback = function(Value)
+        _G.SemiSteal = Value
+        if Value then
+            local carpet = CreateSafetyPlatform()
+            task.spawn(function()
+                while _G.SemiSteal do
+                    task.wait(0.1) -- Semi-Instant Delay for Safety
+                    pcall(function()
+                        local player = game.Players.LocalPlayer
+                        local hrp = player.Character.HumanoidRootPart
+                        local base = workspace:FindFirstChild("Base 1") or workspace:FindFirstChild("Base 2")
+                        
+                        if base then
+                            -- Semi-Instant Movement with Carpet Sync
+                            local targetPos = base:GetModelCFrame() * CFrame.new(0, 3, 0)
+                            hrp.CFrame = targetPos
+                            carpet.CFrame = hrp.CFrame * CFrame.new(0, -3.5, 0)
+                            
+                            -- Automated Interaction Logic
+                            for _, v in pairs(base:GetDescendants()) do
+                                if v:IsA("ProximityPrompt") then
+                                    local pName = v.Parent.Name:lower()
+                                    -- Accurate Filter: Skip Shops/Buying
+                                    if not pName:find("buy") and not pName:find("shop") then
+                                        if pName:find("brainrot") or v.ObjectText:lower():find("brainrot") then
+                                            fireproximityprompt(v)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                end
+                carpet:Destroy() -- Removes platform when disabled
+            end)
+        end
+    end    
+})
+
+MainTab:AddBind({
+    Name = "Toggle Key (E)",
+    Default = Enum.KeyCode.E,
+    Hold = false,
+    Callback = function()
+        _G.SemiSteal = not _G.SemiSteal
+    end    
+})
+
+OrionLib:Init()
